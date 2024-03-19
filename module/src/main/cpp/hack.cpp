@@ -45,11 +45,14 @@ void hack_start(const char *game_data_dir) {
         LOGI("libil2cpp.so not found in thread %d", gettid());
     }
 
+    LOGI("libtolua.so start %d", gettid());
     load = false;
     for (int i = 0; i < 10; i++) {
         void *handle = xdl_open("libtolua.so", 0);
+        LOGI("libtolua.so start %ld", (long)handle);
         if (handle) {
             load = true;
+            LOGI("DobbyHooked %ld", (long)handle);
             DobbyHook(xdl_sym(handle, "luaL_newstate", nullptr), (void *) new_luaL_newstate,
                       (void **) &orig_luaL_newstate);
             break;
