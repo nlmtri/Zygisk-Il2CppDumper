@@ -16,9 +16,19 @@
 #include <sys/mman.h>
 #include <linux/unistd.h>
 #include <array>
+#include "lauxlib.h"
+#include <dobby.h>
+
+HOOK_DEF(lua_State *, luaL_newstate, void) {
+    lua_State * L = orig_luaL_newstate();
+    LOGI("luaL_newstate is hooked");
+    return L;
+}
+
 
 void hack_start(const char *game_data_dir) {
     bool load = false;
+
     for (int i = 0; i < 10; i++) {
         void *handle = xdl_open("libil2cpp.so", 0);
         if (handle) {
@@ -33,6 +43,24 @@ void hack_start(const char *game_data_dir) {
     if (!load) {
         LOGI("libil2cpp.so not found in thread %d", gettid());
     }
+
+    load = false;
+    for (int i = 0; i < 10; i++) {
+        void *handle = xdl_open("tolua.so", 0);
+        if (handle) {
+            load = true;
+            DobbyHook((void *) luaL_newstate, (void *) new_luaL_newstate,
+                      (void **) &orig_luaL_newstate);
+            break;
+        }
+        else {
+            sleep(1);
+        }
+    }
+    if (!load) {
+        LOGI("tolua.so not found in thread %d", gettid());
+    }
+
 }
 
 std::string GetLibDir(JavaVM *vms) {
