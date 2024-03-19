@@ -39,9 +39,6 @@ HOOK_DEF(int, lua_pcall, lua_State* L, int nargs, int nresults, int errfunc) {
 void hack_start(const char *game_data_dir) {
     bool load = false;
 
-    DobbyHook((void *) dlopen, (void *) new_dlopen,
-              (void **) &orig_dlopen);
-
     for (int i = 0; i < 10; i++) {
         void *handle = xdl_open("libil2cpp.so", 0);
         if (handle) {
@@ -198,6 +195,8 @@ bool NativeBridgeLoad(const char *game_data_dir, int api_level, void *data, size
             LOGI("NativeBridgeLoadLibrary %p", callbacks->loadLibrary);
             LOGI("NativeBridgeLoadLibraryExt %p", callbacks->loadLibraryExt);
             LOGI("NativeBridgeGetTrampoline %p", callbacks->getTrampoline);
+            DobbyHook((void *) callbacks->loadLibrary, (void *) new_dlopen,
+                      (void **) &orig_dlopen);
 
             int fd = syscall(__NR_memfd_create, "anon", MFD_CLOEXEC);
             ftruncate(fd, (off_t) length);
