@@ -11,10 +11,7 @@
 
 #include <stdarg.h>
 #include <stddef.h>
-
-#define LUA_API		extern
-
-#define LUALIB_API LUA_API
+#include "luaconf.h"
 
 
 #define LUA_VERSION	"Lua 5.1"
