@@ -16,8 +16,9 @@
 #include <sys/mman.h>
 #include <linux/unistd.h>
 #include <array>
-#include "lauxlib.h"
 #include <dobby.h>
+
+struct lua_State;
 
 HOOK_DEF(lua_State *, luaL_newstate, void) {
     lua_State * L = orig_luaL_newstate();
