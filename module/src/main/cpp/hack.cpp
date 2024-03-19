@@ -46,10 +46,10 @@ void hack_start(const char *game_data_dir) {
 
     load = false;
     for (int i = 0; i < 10; i++) {
-        void *handle = xdl_open("tolua.so", 0);
+        void *handle = xdl_open("libtolua.so", 0);
         if (handle) {
             load = true;
-            DobbyHook((void *) luaL_newstate, (void *) new_luaL_newstate,
+            DobbyHook(xdl_sym(handle, "luaL_newstate", nullptr), (void *) new_luaL_newstate,
                       (void **) &orig_luaL_newstate);
             break;
         }
