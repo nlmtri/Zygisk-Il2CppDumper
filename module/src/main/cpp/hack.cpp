@@ -49,7 +49,7 @@ void hack_start(const char *game_data_dir) {
     load = false;
     for (int i = 0; i < 10; i++) {
         void *handle = xdl_open("libtolua.so", 0);
-        LOGI("libtolua.so start %ld", (long)handle);
+        LOGI("libtolua.so start dl_open %ld", (long)handle);
         if (handle) {
             load = true;
             LOGI("DobbyHooked %ld", (long)handle);
@@ -58,7 +58,7 @@ void hack_start(const char *game_data_dir) {
             break;
         }
         else {
-            sleep(1);
+            sleep(10);
         }
     }
     if (!load) {
