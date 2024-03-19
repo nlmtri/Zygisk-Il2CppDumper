@@ -26,14 +26,21 @@ HOOK_DEF(lua_State *, luaL_newstate, void) {
     return L;
 }
 
+HOOK_DEF(void *, dlopen, const char *filename, int flags) {
+    LOGI("dl_open is hooked");
+    return orig_dlopen(filename, flags);
+}
+
 HOOK_DEF(int, lua_pcall, lua_State* L, int nargs, int nresults, int errfunc) {
     LOGI("lua_pcall is hooked");
     return orig_lua_pcall(L, nargs, nresults, errfunc);
 }
 
-
 void hack_start(const char *game_data_dir) {
     bool load = false;
+
+    DobbyHook((void *) dlopen, (void *) new_dlopen,
+              (void **) &orig_dlopen);
 
     for (int i = 0; i < 10; i++) {
         void *handle = xdl_open("libil2cpp.so", 0);
