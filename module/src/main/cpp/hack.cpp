@@ -26,6 +26,11 @@ HOOK_DEF(lua_State *, luaL_newstate, void) {
     return L;
 }
 
+HOOK_DEF(int, lua_pcall, lua_State* L, int nargs, int nresults, int errfunc) {
+    LOGI("lua_pcall is hooked");
+    return orig_lua_pcall(L, nargs, nresults, errfunc);
+}
+
 
 void hack_start(const char *game_data_dir) {
     bool load = false;
@@ -53,8 +58,8 @@ void hack_start(const char *game_data_dir) {
         if (handle) {
             load = true;
             LOGI("DobbyHooked %ld", (long)handle);
-            DobbyHook(xdl_sym(handle, "luaL_newstate", nullptr), (void *) new_luaL_newstate,
-                      (void **) &orig_luaL_newstate);
+            DobbyHook(xdl_sym(handle, "lua_pcall", nullptr), (void *) new_lua_pcall,
+                      (void **) &orig_lua_pcall);
             break;
         }
         else {
