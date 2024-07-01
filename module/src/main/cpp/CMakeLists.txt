@@ -31,6 +31,9 @@ set(DobbyHome Dobby)
 include_directories(
         ${DobbyHome}/include
 )
+include_directories(ImGui)
+include_directories(ImGui/backends)
+
 macro(SET_OPTION option value)
     set(${option} ${value} CACHE INTERNAL "" FORCE)
 endmacro()
@@ -41,15 +44,36 @@ add_subdirectory(${DobbyHome} dobby)
 include_directories(
         xdl/include
 )
+include_directories(${ANDROID_NDK}/sources/android/native_app_glue)
 
 aux_source_directory(xdl xdl-src)
 
 add_library(${MODULE_NAME} SHARED
+		imgui/imgui.cpp
+		imgui/imgui_demo.cpp
+		imgui/imgui_draw.cpp
+		imgui/imgui_tables.cpp
+		imgui/imgui_widgets.cpp
+		imgui/backends/imgui_impl_android.cpp
+		imgui/backends/imgui_impl_opengl3.cpp
+
         main.cpp
         hack.cpp
         il2cpp_dump.cpp
+        lua_api.cpp
         ${xdl-src})
-target_link_libraries(${MODULE_NAME} log dobby)
+
+find_library(egl EGL)
+find_library(GLESV2_LIB GLESv2)
+
+target_link_libraries(${MODULE_NAME} log
+        dobby
+        EGL
+        GLESv1_CM
+        GLESv2
+        GLESv3
+        android
+)
 
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_custom_command(TARGET ${MODULE_NAME} POST_BUILD

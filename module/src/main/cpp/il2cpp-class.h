@@ -124,7 +124,7 @@ typedef struct Il2CppType {
 } Il2CppType;
 
 typedef struct MethodInfo {
-    Il2CppMethodPointer methodPointer;
+    void *methodPointer;
 } MethodInfo;
 
 typedef struct Il2CppObject {

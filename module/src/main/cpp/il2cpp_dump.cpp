@@ -38,6 +38,11 @@ void init_il2cpp_api(void *handle) {
 #undef DO_API
 }
 
+uint64_t get_il2pp_base()
+{
+    return il2cpp_base;
+}
+
 std::string get_method_modifier(uint32_t flags) {
     std::stringstream outPut;
     auto access = flags & METHOD_ATTRIBUTE_MEMBER_ACCESS_MASK;
@@ -90,6 +95,51 @@ bool _il2cpp_type_is_byref(const Il2CppType *type) {
         byref = il2cpp_type_is_byref(type);
     }
     return byref;
+}
+
+void il2cpp_start_world(){
+    il2cpp_start_gc_world();
+}
+
+void il2cpp_stop_world(){
+    il2cpp_stop_gc_world();
+}
+
+void* il2cpp_get_fun_addr(const char* imageName, const char* nameSpace, const char* className, const char* methodName, int argCount)
+{
+    LOGW("HOOK methodName %s", methodName);
+    size_t size;
+    auto domain = il2cpp_domain_get();
+    il2cpp_thread_attach(domain);
+    LOGW("HOOK methodName %s il2cpp_thread_attach", methodName);
+
+    auto assemblies = il2cpp_domain_get_assemblies(domain, &size);
+    const Il2CppImage* image = NULL;
+    for (int i = 0; i < size; ++i) {
+        auto im = il2cpp_assembly_get_image(assemblies[i]);
+        if(strcmp(imageName, reinterpret_cast<const char *>(il2cpp_image_get_name(im) == 0)))
+        {
+            image = im;
+            break;
+        }
+    }
+
+    if(image == NULL)
+    {
+        return nullptr;
+    }
+    LOGW("HOOK methodName %s find image", methodName);
+    auto klass = il2cpp_class_from_name(image, nameSpace, className);
+    auto method = il2cpp_class_get_method_from_name(klass, methodName, argCount);
+
+    LOGW("HOOK methodName %s find method", methodName);
+    if(method != nullptr)
+    {
+        return method->methodPointer;
+    }
+
+    return nullptr;
+
 }
 
 std::string dump_method(Il2CppClass *klass) {
